@@ -38,7 +38,6 @@
                                                 <tbody>
                                                     <tr>
                                                         <% if(id) {%>
-                                                        <% if(wishlistProducts.item>0) {%>
                                                             <% for(let key of wishlistProducts.item) {%>
                                                                 <td class="cart__product__item">
                                                                     <img src="/banners/<%=key.productId.image[0]%>"
@@ -76,13 +75,7 @@
                                                                             class="icon_cart" style="color: green; background: #fff;"></span></a></td>
                                                     </tr>
                                                     <% } %> 
-                                                    <%  } else{ %>
-                                                        <td class="cart__product__item">
-                                                            <h3 class="text-center" style="color: rgb(0, 0, 0); font-weight: bold;">No Products
-                                                                Found</h3>
-                                                        </td>
-                                                        <% } } %>
-                                                            <% }else{ %>
+                                                            <% }}else{ %>
                                                                 <td class="cart__product__item">
                                                                     <div class="container">
                                                                         <div class="container-fluid">
