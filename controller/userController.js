@@ -1,7 +1,8 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable no-new-wrappers */
 /* eslint-disable prefer-const */
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-
+  require('dotenv').config()
 }
 const User = require('../models/userModel')
 const bcrypt = require('bcrypt')
@@ -31,10 +32,8 @@ let currentOrder
 
 const express = require('express')
 const app = express()
-const cors = require('cors');
-const { ObjectID } = require('bson');
+const cors = require('cors')
 app.use(cors())
-
 
 const securePassword = async (password) => {
   try {
@@ -133,7 +132,7 @@ const userForgotPassword = async (req, res) => {
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
-        res.render('home',)
+        res.render('home')
       } else {
         res.render('login')
       }
@@ -154,7 +153,6 @@ const checkUser = async (req, res) => {
       const email = req.body.email
       userEmail = email
       const userDataOne = await User.findOne({ email: email })
-      userOne = userDataOne
       if (userDataOne) {
         const otp = sendMessage(userDataOne.mobile, res)
         newOtp = otp
@@ -183,7 +181,6 @@ const sentOtp = async (req, res) => {
         res.render('forgotpassword', { isLoggedIn: false, forgotpassword: false, checkuser: false, otp: true, user: userData, changepassword: true })
       } else {
         res.render('forgotpassword', { isLoggedIn: false, forgotpassword: false, checkuser: true, otp: false, user: userData, changepassword: false, message: 'Invalid Otp' })
-
       }
     }
   } catch (error) {
@@ -200,6 +197,7 @@ const changepassword = async (req, res) => {
       const password1 = req.body.password1
       const password2 = req.body.password2
       const user = userEmail
+      const userData = await User.findById({ email: user })
       console.log('userEmail: ' + user)
       if (password1 === password2) {
         const sPassword = await securePassword(password1)
@@ -219,7 +217,6 @@ const changepassword = async (req, res) => {
     console.log(error.message)
   }
 }
-
 
 const insertUser = async (req, res) => {
   const userData = await User.findOne({ email: req.body.email })
@@ -387,7 +384,8 @@ const loadIndex = async (req, res) => {
     }
     const limit = 3
     const products = await Product.find({
-      isAvailable: 1, category: names,
+      isAvailable: 1,
+      category: names,
       $or: [
         { name: { $regex: '.*' + search + '.*', $options: 'i' } },
         { name: { $regex: '.*' + search + '.*', $options: 'i' } }
@@ -397,20 +395,21 @@ const loadIndex = async (req, res) => {
       .skip((page - 1) * limit)
       .exec()
     const count = await Product.find({
-      isAvailable: 1, category: names,
+      isAvailable: 1,
+      category: names,
       $or: [
         { name: { $regex: '.*' + search + '.*', $options: 'i' } },
         { name: { $regex: '.*' + search + '.*', $options: 'i' } }
       ]
     }).countDocuments()
 
-
-
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
         res.render('index', {
-          products, isLoggedIn: true, category: categoryData,
+          products,
+          isLoggedIn: true,
+          category: categoryData,
           totalPages: Math.ceil(count / limit),
           currentPage: page,
           previous: new Number(page) - 1,
@@ -418,7 +417,9 @@ const loadIndex = async (req, res) => {
         })
       } else {
         res.render('index', {
-          products, isLoggedIn: false, category: categoryData,
+          products,
+          isLoggedIn: false,
+          category: categoryData,
           totalPages: Math.ceil(count / limit),
           currentPage: page,
           previous: new Number(page) - 1,
@@ -427,7 +428,9 @@ const loadIndex = async (req, res) => {
       }
     } else {
       res.render('index', {
-        products, isLoggedIn: false, category: categoryData,
+        products,
+        isLoggedIn: false,
+        category: categoryData,
         totalPages: Math.ceil(count / limit),
         currentPage: page,
         previous: new Number(page) - 1,
@@ -545,10 +548,10 @@ const loadCheckout = async (req, res) => {
           res.render('checkout', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, nocoupon, couponTotal: userSession.couponTotal, offerName: userSession.offer, coupon })
         }
       } else {
-        res.render('checkout', { isLoggedIn: false, id: userSession.userId, nocoupon: false, userAddress: null, addSelect: null, nocoupon: null, couponTotal: null, offerName: false, coupon: false })
+        res.render('checkout', { isLoggedIn: false, id: userSession.userId, nocoupon: false, userAddress: null, addSelect: null, couponTotal: null, offerName: false, coupon: false })
       }
     } else {
-      res.render('checkout', { isLoggedIn: false, id: userSession.userId, nocoupon: false, userAddress: null, addSelect: null, nocoupon: null, couponTotal: null, offerName: false, coupon: false })
+      res.render('checkout', { isLoggedIn: false, id: userSession.userId, nocoupon: false, userAddress: null, addSelect: null, couponTotal: null, offerName: false, coupon: false })
     }
   } catch (error) {
     console.log(error.message)
@@ -588,12 +591,11 @@ const storeOrder = async (req, res) => {
         currentOrder = orderData.key_id
 
         if (userSession.offer) {
-          const offerUpdate = await Offer.updateOne(
+          await Offer.updateOne(
             { name: userSession.offer.name },
             { $push: { usedBy: userSession.userId } }
           )
         }
-
 
         const ordern = await Order.findById({ _id: userSession.currentOrder })
         const productDetails = await Product.find({ is_available: 1 })
@@ -830,7 +832,6 @@ const returnOrder = async (req, res) => {
         console.log()
         console.log(currentOrder)
         const productOrderData = await Order.findById({ _id: currentOrder })
-        console.log('dfjkjfgdfh');
         const productData = await Product.findById({ _id: id })
         if (productOrderData) {
           console.log('Product  order data : ' + productOrderData)
@@ -839,15 +840,14 @@ const returnOrder = async (req, res) => {
               new String(productOrderData.products.item[i].productId).trim() ===
               new String(id).trim()
             ) {
-              productData.stock += productOrderData.products.item[i].qty;
-              productOrderData.productReturned[i] = 1;
+              productData.stock += productOrderData.products.item[i].qty
+              productOrderData.productReturned[i] = 1
               await productData.save().then(() => {
-                console.log("productData saved")
+                console.log('productData saved')
               })
               await productOrderData.save().then(() => {
                 console.log('productOrderData saved')
               })
-            } else {
             }
           }
           res.redirect('/userprofile')
@@ -960,19 +960,6 @@ const userLogout = async (req, res) => {
   }
 }
 
-// const notFound = async (req, res) => {
-//   try {
-//     userSession = req.session
-//     if (userSession.userId) {
-//       res.render('404', { isLoggedIn: true })
-//     } else {
-//       res.render('404', { isLoggedIn: true })
-//     }
-//   } catch (error) {
-//     console.log(error.message)
-//   }
-// }
-
 module.exports = {
   loadLogin,
   verifyLogin,
@@ -1008,6 +995,5 @@ module.exports = {
   loadFilterProduct,
   addCoupon,
   changeProductQty,
-  userLogout,
-  // notFound
+  userLogout
 }

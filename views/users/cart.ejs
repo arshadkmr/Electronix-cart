@@ -35,9 +35,8 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                  
                                                         <% if(id) {%>
-                                                        <% if(cartProducts.item>0) {%>
+                                                        
                                                             
                                                             <% for(let key of cartProducts.item) {%>
                                                                 <tr>
@@ -82,12 +81,8 @@
                                                                             style="color: red;"></span></a></td>
                                                     </tr>
                                                     <% } %> 
-                                                    <%  } else{ %>
-                                                        <td class="cart__product__item">
-                                                            <h3 class="text-center" style="color: rgb(0, 0, 0); font-weight: bold;">No Products
-                                                                Found</h3>
-                                                        </td>
-                                                        <% }} %>
+                                                    
+                                                        <% } %>
                                                             <% } else{ %>
                                                                 <td class="cart__product__item">
                                                                     <div class="container">
