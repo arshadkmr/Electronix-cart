@@ -1,15 +1,16 @@
+/* eslint-disable quotes */
+/* eslint-disable prefer-const */
 const User = require('../models/userModel')
 const Product = require('../models/productModel')
 const Category = require('../models/categoryModel')
 const Offer = require('../models/offerModel')
 const Order = require('../models/orderModel')
 const bcrypt = require('bcrypt')
-const objectId = require("mongodb").ObjectId
 const excelJs = require('exceljs')
 
 let adminSession = false
 
-const { ObjectId } = require("mongodb")
+const { ObjectId } = require('mongodb')
 
 const loadLogin = async (req, res) => {
   try {
@@ -26,7 +27,6 @@ const loadLogin = async (req, res) => {
 
 const loadDashboard = async (req, res) => {
   try {
-    console.log("admin")
     adminSession = req.session
     if (adminSession.adminId) {
       const productData = await Product.find()
@@ -35,34 +35,34 @@ const loadDashboard = async (req, res) => {
       const categoryArray = []
       const orderCount = []
       for (let key of categoryData) {
-        categoryArray.push(key.names);
-        orderCount.push(0);
+        categoryArray.push(key.names)
+        orderCount.push(0)
       }
-      const completeOrder = [];
-      const orderData = await Order.find();
-      const orderItems = orderData.map((item) => item.products.item);
-      let productIds = [];
+      const completeOrder = []
+      const orderData = await Order.find()
+      const orderItems = orderData.map((item) => item.products.item)
+      let productIds = []
       orderItems.forEach((orderItem) => {
         orderItem.forEach((item) => {
-          productIds.push(item.productId.toString());
-        });
-      });
-      const s = [...new Set(productIds)];
+          productIds.push(item.productId.toString())
+        })
+      })
+      const s = [...new Set(productIds)]
       const uniqueProductObjs = s.map((id) => {
-        return { id: ObjectId(id), qty: 0 };
-      });
+        return { id: ObjectId(id), qty: 0 }
+      })
       orderItems.forEach((orderItem) => {
         orderItem.forEach((item) => {
           uniqueProductObjs.forEach((idObj) => {
             if (item.productId.toString() === idObj.id.toString()) {
-              idObj.qty += item.qty;
+              idObj.qty += item.qty
             }
-          });
-        });
-      });
+          })
+        })
+      })
       for (let key of orderData) {
-        const append = await key.populate("products.item.productId");
-        completeOrder.push(append);
+        const append = await key.populate('products.item.productId')
+        completeOrder.push(append)
       }
       completeOrder.forEach((order) => {
         order.products.item.forEach((it) => {
@@ -70,52 +70,52 @@ const loadDashboard = async (req, res) => {
             if (it.productId._id.toString() === obj.id.toString()) {
               uniqueProductObjs.forEach((ss) => {
                 if (ss.id.toString() !== it.productId._id.toString()) {
-                  obj.name = it.productId.name;
+                  obj.name = it.productId.name
                 }
-              });
+              })
             }
-          });
-        });
-      });
-      const salesCount = [];
-      const productName = productData.map((product) => product.name);
+          })
+        })
+      })
+      const salesCount = []
+      const productName = productData.map((product) => product.name)
       for (let i = 0; i < productName.length; i++) {
         for (let j = 0; j < uniqueProductObjs.length; j++) {
           if (productName[i] === uniqueProductObjs[j].name) {
-            salesCount.push(uniqueProductObjs[j].qty);
+            salesCount.push(uniqueProductObjs[j].qty)
           } else {
-            salesCount.push(0);
+            salesCount.push(0)
           }
         }
       }
-      console.log(salesCount);
-      console.log(productName);
+      console.log(salesCount)
+      console.log(productName)
       for (let i = 0; i < completeOrder.length; i++) {
         for (let j = 0; j < completeOrder[i].products.item.length; j++) {
-          const categoryData = completeOrder[i].products.item[j].productId.category;
+          const categoryData = completeOrder[i].products.item[j].productId.category
           const isExisting = categoryArray.findIndex((category) => {
-            return category === categoryData;
-          });
-          orderCount[isExisting]++;
-          console.log(categoryData);
-          console.log(orderCount);
+            return category === categoryData
+          })
+          orderCount[isExisting]++
+          console.log(categoryData)
+          console.log(orderCount)
         }
       }
       if (productName && salesCount) {
-        res.render("home", {
+        res.render('home', {
           products: productData,
           users: userData,
           category: categoryArray,
           count: orderCount,
           pname: productName,
-          pcount: salesCount,
-        });
+          pcount: salesCount
+        })
       }
     }
   } catch (error) {
-    console.log(error.message);
+    console.log(error.message)
   }
-};
+}
 
 const verifyLogin = async (req, res) => {
   try {
@@ -141,19 +141,6 @@ const verifyLogin = async (req, res) => {
     console.log(error.message)
   }
 }
-
-// const loadDashboard = async (req, res) => {
-//   try {
-//     adminSession = req.session
-//     if (adminSession.adminId) {
-//       res.render('home')
-//     } else {
-//       res.redirect('/admin/login')
-//     }
-//   } catch (error) {
-//     console.log(error.message)
-//   }
-// }
 
 const adminDashboard = async (req, res) => {
   try {
@@ -388,8 +375,6 @@ const insertCategory = async (req, res) => {
   }
 }
 
-
-
 const loadCategory = async (req, res) => {
   try {
     adminSession = req.session
@@ -582,21 +567,21 @@ const updateOrderStatus = async (req, res) => {
   try {
     adminSession = req.session
     if (adminSession.adminId) {
-      let orderId = req.body.orderid;
+      let orderId = req.body.orderid
       console.log(orderId)
       const orderData = await Order.findByIdAndUpdate({ _id: orderId }, { $set: { status: req.body.status } })
       if (orderData) {
         console.log('Order updated')
-        res.redirect("/admin/orderdetails")
+        res.redirect('/admin/orderdetails')
       } else {
         console.log('Order error')
-        res.redirect("/admin/orderdetails")
+        res.redirect('/admin/orderdetails')
       }
     } else {
       res.redirect('/admin/login')
     }
   } catch (error) {
-    console.log(error.message);
+    console.log(error.message)
   }
 }
 
@@ -604,39 +589,39 @@ const orderDownload = async function (req, res) {
   try {
     adminSession = req.session
     if (adminSession.adminId) {
-      const workBook = new excelJs.Workbook();
-      const workSheet = workBook.addWorksheet("My Orders");
+      const workBook = new excelJs.Workbook()
+      const workSheet = workBook.addWorksheet('My Orders')
       workSheet.columns = [
-        { header: "S no.", key: "s_no" },
-        { header: "Name", key: "firstname" },
-        { header: "Payment", key: "payment" },
-        { header: "Country", key: "country" },
-        { header: "Address", key: "address" },
-        { header: "State", key: "state" },
-        { header: "City", key: "city" },
-        { header: "Zip", key: "zip" },
-        { header: "Date", key: "createdAt" },
-        { header: "Status", key: "status" }
+        { header: 'S no.', key: 's_no' },
+        { header: 'Name', key: 'firstname' },
+        { header: 'Payment', key: 'payment' },
+        { header: 'Country', key: 'country' },
+        { header: 'Address', key: 'address' },
+        { header: 'State', key: 'state' },
+        { header: 'City', key: 'city' },
+        { header: 'Zip', key: 'zip' },
+        { header: 'Date', key: 'createdAt' },
+        { header: 'Status', key: 'status' }
       ]
-      let counter = 1;
-      const orderData = await Order.find({});
+      let counter = 1
+      const orderData = await Order.find({})
       orderData.forEach(function (orders) {
-        orders.s_no = counter;
-        workSheet.addRow(orders);
-        counter++;
+        orders.s_no = counter
+        workSheet.addRow(orders)
+        counter++
       })
       workSheet.getRow(1).eachCell(function (cell) {
-        cell.font = { bold: true };
+        cell.font = { bold: true }
       })
       res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       )
       res.setHeader(
-        "Content-Disposition", `attachment;filename=orders.xlsx`
+        'Content-Disposition', `attachment;filename=orders.xlsx`
       )
       return workBook.xlsx.write(res).then(function () {
-        res.status(200);
+        res.status(200)
       })
     } else {
       res.redirect('/admin/login')
