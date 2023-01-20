@@ -41,5 +41,4 @@ adminRoute.post('/orderdetails', adminController.updateOrderStatus)
 adminRoute.get('/orderDownload', adminController.orderDownload)
 adminRoute.get('/logout', adminController.adminLogout)
 
-
 module.exports = adminRoute

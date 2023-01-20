@@ -24,6 +24,8 @@
                                 <div class="col-lg-12">
                                     <div class="shop__cart__table">
                                         <% if(isLoggedIn===true) {%>
+                                            <% if(id) {%>
+                                            <% if(cartProducts.item.length>0) {%>
                                             <table>
                                                 <thead>
                                                     <tr>
@@ -35,7 +37,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                        <% if(id) {%>
                                                         
                                                             
                                                             <% for(let key of cartProducts.item) {%>
@@ -80,9 +81,13 @@
                                                                             class="icon_close"
                                                                             style="color: red;"></span></a></td>
                                                     </tr>
-                                                    <% } %> 
-                                                    
-                                                        <% } %>
+                                                    <% } }else{%> 
+                                                        <td class="cart__product__item">
+                                                            <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+                                                            <lottie-player class="m-auto" src="https://assets1.lottiefiles.com/packages/lf20_15TIGR.json"  background="transparent"  speed="1"  style="width: 300px; height: 300px;"  loop autoplay></lottie-player>
+                                                            <h3 class="text-center" style="font-weight: bold; ">No Products In cart</h3>
+                                                        </td>
+                                                        <% }} %>
                                                             <% } else{ %>
                                                                 <td class="cart__product__item">
                                                                     <div class="container">
@@ -104,6 +109,7 @@
                                 </div>
                             </div>
                             <% if(isLoggedIn===true) {%>
+                                <%if(cartProducts.item.length>0){%>
                                 <div class="row">
                                     <div class="col-lg-6 col-md-6 col-sm-6">
                                         <div class="cart__btn">
@@ -114,17 +120,16 @@
                                         <div class="cart__btn update__btn">
                                             <a href="/cart"><span class="icon_loading"></span> Update cart</a>
                                         </div>
-                                        <div class="cart__total__procced ml-5">
-                                            <h6>Cart total</h6>
-                                            <%if(id){%>
+                                            <div class="cart__total__procced ml-5">
+                                                <h6>Cart total</h6>
                                                 <ul>
                                                     <li>Total <span id="total">₹ <%= cartProducts.totalPrice %>/-
                                                         </span></li>
                                                 </ul>
+                                                <a href="/checkout" class="primary-btn">Proceed to checkout</a>
+                                            </div>
                                                 <%}%>
-                                                    <a href="/checkout" class="primary-btn">Proceed to checkout</a>
                                                     <% } %>
-                                        </div>
                                     </div>
                                 </div>
                                 <!-- <div class="row">

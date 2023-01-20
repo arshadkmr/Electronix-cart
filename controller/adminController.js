@@ -38,6 +38,7 @@ const loadDashboard = async (req, res) => {
         categoryArray.push(key.names)
         orderCount.push(0)
       }
+      console.log('orderCount: ' + orderCount)
       const completeOrder = []
       const orderData = await Order.find()
       const orderItems = orderData.map((item) => item.products.item)
@@ -88,17 +89,18 @@ const loadDashboard = async (req, res) => {
           }
         }
       }
-      console.log(salesCount)
-      console.log(productName)
+      console.log('sales' + salesCount)
+      console.log('product' + productName)
       for (let i = 0; i < completeOrder.length; i++) {
         for (let j = 0; j < completeOrder[i].products.item.length; j++) {
           const categoryData = completeOrder[i].products.item[j].productId.category
           const isExisting = categoryArray.findIndex((category) => {
             return category === categoryData
           })
+          console.log('isExisting' + isExisting)
           orderCount[isExisting]++
-          console.log(categoryData)
-          console.log(orderCount)
+          console.log('category' + categoryData)
+          console.log('order' + orderCount)
         }
       }
       if (productName && salesCount) {
@@ -111,6 +113,8 @@ const loadDashboard = async (req, res) => {
           pcount: salesCount
         })
       }
+    } else {
+      res.redirect('/admin/login')
     }
   } catch (error) {
     console.log(error.message)
@@ -553,7 +557,8 @@ const loadOrder = async (req, res) => {
   try {
     adminSession = req.session
     if (adminSession.adminId) {
-      const orderData = await Order.find()
+      const orderData = await Order.find().sort({ createdAt: -1 })
+      console.log(orderData)
       res.render('adminOrder', { orderData })
     } else {
       res.redirect('/admin/login')

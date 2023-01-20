@@ -25,6 +25,8 @@
                                 <div class="col-lg-12">
                                     <div class="shop__cart__table">
                                         <% if(isLoggedIn) {%>
+                                            <% if(id) {%>
+                                            <% if(wishlistProducts.item.length>0) {%>
                                             <table>
                                                 <thead>
                                                     <tr>
@@ -37,7 +39,6 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <% if(id) {%>
                                                             <% for(let key of wishlistProducts.item) {%>
                                                                 <td class="cart__product__item">
                                                                     <img src="/banners/<%=key.productId.image[0]%>"
@@ -74,8 +75,13 @@
                                                                         href="/addToCartDeleteWishlist?id=<%=key.productId._id%>"><span
                                                                             class="icon_cart" style="color: green; background: #fff;"></span></a></td>
                                                     </tr>
-                                                    <% } %> 
-                                                            <% }}else{ %>
+                                                    <% } }else{ %>
+                                                        <td class="cart__product__item">
+                                                            <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<lottie-player class="m-auto" src="https://assets1.lottiefiles.com/packages/lf20_w7DMdes9Cs.json"  background="transparent"  speed="1"  style="width: 300px; height: 300px;"  loop autoplay></lottie-player>
+                                                            <h2 class="text-center" style="font-weight: bold;">No Products in wishlist</h2>
+                                                        </td>
+                                                            <%} }}else{ %>
                                                                 <td class="cart__product__item">
                                                                     <div class="container">
                                                                         <div class="container-fluid">
@@ -95,35 +101,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-6">
-                                    <div class="cart__btn">
-                                        <a href="home">Continue Shopping</a>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6">
-                                    <div class="cart__btn update__btn">
-                                        <a href="#"><span class="icon_loading"></span> Update cart</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="discount__content">
-                                        <h6>Discount codes</h6>
-                                        <form action="#">
-                                            <input type="text" placeholder="Enter your coupon code">
-                                            <button type="submit" class="site-btn">Apply</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 offset-lg-2">
-                                    <div class="cart__total__procced">
-                                        <h6>Cart total</h6>
-                                                <a href="#" class="primary-btn">Proceed to checkout</a>
-                                    </div>
-                                </div>
-                            </div> -->
                         </div>
                     </section>
                     <!-- Shop Cart Section End -->
