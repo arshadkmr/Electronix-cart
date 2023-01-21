@@ -42,7 +42,14 @@
                                         <div role="tabpanel" class="tab-pane" id="tabs-1-2">
                                             <div class="nk-gap"></div>
                                             <section class="container-fluid">
-                                                <table id="myTable" class="table text-success	">
+                                                <table id="myTable" class="table text-success">
+                                                    <% if(typeof message!=='undefined' ){ %>
+                                                        <h3>
+                                                            <p style="color: rgb(30, 0, 255);">
+                                                                <%= message%>
+                                                            </p>
+                                                        </h3>
+                                                        <% } %>
                                                     <thead>
                                                         <tr>
                                                             <th class="text-dark" scope="col">OrderId</th>

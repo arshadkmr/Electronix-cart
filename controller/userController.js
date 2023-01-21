@@ -807,6 +807,7 @@ const cancelOrder = async (req, res) => {
         const id = req.query.id
         const orderData = await Order.findOne({ _id: id })
         if (orderData) {
+          orderData.deleteOne()
           res.redirect('/userprofile')
         } else {
           res.redirect('/userprofile')

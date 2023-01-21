@@ -31,7 +31,7 @@ userRoute.post('/razorpay', userController.razorpayCheckout)
 userRoute.get('/orderSuccess', userController.loadSuccess)
 userRoute.get('/viewOrder', userController.viewOrder)
 userRoute.get('/cancelOrder', userController.cancelOrder)
-userRoute.get('/returnProduct',userController.returnOrder)
+userRoute.get('/returnProduct', userController.returnOrder)
 userRoute.post('/addcoupon', userController.addCoupon)
 
 userRoute.get('/category-products', userController.loadFilterProduct)
