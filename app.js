@@ -1,6 +1,5 @@
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-
+  require('dotenv').config()
 }
 const mongoose = require('mongoose')
 mongoose.connect(process.env.mongo)
@@ -25,12 +24,11 @@ app.use('/', express.static('public/'))
 
 app.use(nocache())
 
-
 app.use('/', userRoute)
 
 app.use('/admin', adminRoute)
 
-app.get('*',function (req, res) {
+app.get('*', function (req, res) {
   res.status(404).render('users/404')
 })
 
