@@ -298,7 +298,7 @@ const editProduct = async (req, res) => {
       const productData = await Product.findById(productId)
       const categoryData = await Category.find()
       if (productData) {
-        res.render('editProduct', { product: productData, category: categoryData })
+        res.render('editproduct', { product: productData, category: categoryData })
       }
     } else {
       res.redirect('/admin/login')
