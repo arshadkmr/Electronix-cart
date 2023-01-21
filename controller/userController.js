@@ -805,12 +805,8 @@ const cancelOrder = async (req, res) => {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
         const id = req.query.id
-        const orderData = await Order.findByIdAndDelete({ _id: id })
-        if (orderData) {
-          res.redirect('/userprofile')
-        } else {
-          res.redirect('/userprofile')
-        }
+        await Order.findByIdAndDelete({ _id: id })
+        res.redirect('/userprofile')
       } else {
         res.redirect('/login')
       }
