@@ -903,10 +903,11 @@ const addCoupon = async (req, res) => {
         const offerData = await Offer.findOne({ name: req.body.offer })
         const addressData = await Address.find({ userId: userSession.userId })
         const selectAddress = await Address.findOne({ userId: userData._id })
+        const coupon = await Offer.find()
         if (offerData.isAvailable === 1) {
           if (offerData.usedBy.includes(userSession.userId)) {
             nocoupon = true
-            res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: true, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: userSession.offer, couponTotal: userSession.couponTotal, userData, message: 'Coupon already used' })
+            res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: true, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: userSession.offer, couponTotal: userSession.couponTotal, coupon, userData, message: 'Coupon already used' })
           } else {
             userSession.offer.name = offerData.name
             userSession.offer.type = offerData.type

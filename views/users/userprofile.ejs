@@ -76,7 +76,7 @@
                                                                 </td>
                                                                 <td><%if((key.status!='Delivered')&&(key.status!='Canceled')){%>
                                                                     <a href="/cancelOrder?id=<%= key._id %>"
-                                                                        class="btn btn-outline-warning mb-2">Cancel Order</a><br>
+                                                                        class="btn btn-outline-warning mb-2 cancel">Cancel Order</a><br>
                                                                         <%}%>
                                                                     <a href="/viewOrder?id=<%= key._id %>"
                                                                         class="btn btn-outline-primary ms-2 ">View Details</a>
@@ -100,17 +100,12 @@
                                         <div class="row">
                                             <div class="col-lg-9">
                                                 <h2 class="checkout-title">New Address</h2><!-- End .checkout-title -->
-
-
                                                 <label>First Name *</label>
                                                 <input type="text" class="form-control" name="firstname" value="<%=  %> " required>
-
                                                 <label>Last Name *</label>
                                                 <input type="text" class="form-control" name="lastname" required>
-
                                                 <label>Country *</label>
                                                 <input type="text" class="form-control" name="country" required>
-
                                                 <label>Street address *</label>
                                                 <input type="text" class="form-control"
                                                     placeholder="House number and Street name" name="streetAddress"
@@ -125,19 +120,16 @@
                                                         <input type="text" class="form-control" name="state" required>
                                                     </div><!-- End .col-sm-6 -->
                                                 </div><!-- End .row -->
-
                                                 <div class="row">
                                                     <div class="col-sm-6">
                                                         <label>Postcode / ZIP *</label>
                                                         <input type="text" class="form-control" name="zip" required>
                                                     </div><!-- End .col-sm-6 -->
-
                                                     <div class="col-sm-6">
                                                         <label>Phone *</label>
                                                         <input type="tel" class="form-control" name="mno" required>
                                                     </div><!-- End .col-sm-6 -->
                                                 </div><!-- End .row -->
-
                                                 <button type="submit" class="btn btn-outline-primary mt-3">
                                                     <span>Update</span>
                                                     <i class="icon-long-arrow-right"></i>
@@ -202,23 +194,17 @@
                                     <form action="/editUser" method="post">
                                         <label>Name *</label>
                                         <input type="text" class="form-control" name="name" value="<%=user.name%>">
-
                                         <label>Email address *</label>
                                         <input type="email" class="form-control" name="email" value="<%=user.email%>">
-
                                         <label>Mobile Number *</label>
                                         <input type="text" class="form-control" name="mobile" value="<%=user.mobile%>">
-
                                         <label>Current password (leave blank to leave unchanged)</label>
                                         <input type="password" class="form-control" name="password1">
-
                                         <label>New password (leave blank to leave unchanged)</label>
                                         <input type="password" id="passwords" class="form-control" name="password2">
-
                                         <label>Confirm new password</label>
                                         <input type="password" id="conpasswords" class="form-control mb-2"
                                             name="password3">
-
                                         <button type="submit" class="btn btn-primary">
                                             <span>SAVE CHANGES</span>
                                             <i class="icon-long-arrow-right"></i>
@@ -232,7 +218,6 @@
             </div><!-- End .dashboard -->
         </div><!-- End .page-content -->
     </main><!-- End .main -->
-
     <script type="text/javascript">
         function validation() {
             var password2 = document.getElementById('password2').value;
@@ -262,5 +247,27 @@
         }
     </script>
 
+
+    <script>
+        $(".cancel").on("click", function (e) {
+            e.preventDefault()
+            var self = $(this)
+            Swal.fire({
+                title: 'Are you sure to cancel the order?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes,cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    location.href = self.attr('href')
+
+                }
+            })
+        })
+    </script>
 
     <%- include('../layouts/userFooter.ejs') %>
