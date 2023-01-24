@@ -96,7 +96,7 @@ const loadLogin = async (req, res) => {
       if (userData.is_verified === 1) {
         const productData = await Product.find({ isAvailable: 1 })
         const categoryData = await Category.find({ isAvailable: 1 })
-        res.render('home', { isLoggedIn: true, products: productData, category: categoryData })
+        res.render('home', { isLoggedIn: true, products: productData, category: categoryData, userData })
       } else {
         res.render('login', { isLoggedIn: false })
       }
@@ -114,7 +114,7 @@ const loadRegister = async (req, res) => {
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
-        res.render('home')
+        res.redirect('/home')
       } else {
         res.render('login', { isLoggedIn: false })
       }
@@ -132,7 +132,7 @@ const userForgotPassword = async (req, res) => {
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
-        res.render('home')
+        res.redirect('/home')
       } else {
         res.render('login')
       }
@@ -148,7 +148,7 @@ const checkUser = async (req, res) => {
   try {
     userSession = req.session
     if (userSession.userId) {
-      res.render('home')
+      res.redirect('/home')
     } else {
       const email = req.body.email
       userEmail = email
@@ -171,7 +171,7 @@ const sentOtp = async (req, res) => {
   try {
     userSession = req.session
     if (userSession.userId) {
-      res.render('home')
+      res.redirect('/home')
     } else {
       const otp = newOtp
       console.log(otp)
@@ -192,7 +192,7 @@ const changepassword = async (req, res) => {
   try {
     userSession = req.session
     if (userSession.userId) {
-      res.render('home')
+      res.redirect('/home')
     } else {
       const password1 = req.body.password1
       const password2 = req.body.password2
@@ -266,7 +266,7 @@ const verifyLogin = async (req, res) => {
           } else {
             userSession = req.session
             userSession.userId = userData._id
-            res.render('home', { products, isLoggedIn: true, category: categoryData })
+            res.render('home', { products, isLoggedIn: true, category: categoryData, userData })
           }
         } else {
           res.render('login', { isLoggedIn, message: 'Not an User!!' })
@@ -299,7 +299,7 @@ const loadHome = async (req, res) => {
         userSession.couponTotal = couponTotal
         userSession.nocoupon = nocoupon
         userSession.offer = offer
-        res.render('home', { isLoggedIn: true, products: productData, category: categoryData })
+        res.render('home', { isLoggedIn: true, products: productData, category: categoryData, userData })
       } else {
         res.render('home', { isLoggedIn: false, products: productData, category: categoryData })
       }
@@ -321,7 +321,7 @@ const loadCart = async (req, res) => {
       if (userData.is_verified === 1) {
         console.log(userData)
         const completeUser = await userData.populate('cart.item.productId')
-        res.render('cart', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart })
+        res.render('cart', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart, userData })
       } else {
         res.render('cart', { isLoggedIn: false })
       }
@@ -413,7 +413,8 @@ const loadIndex = async (req, res) => {
           totalPages: Math.ceil(count / limit),
           currentPage: page,
           previous: new Number(page) - 1,
-          next: new Number(page) + 1
+          next: new Number(page) + 1,
+          userData
         })
       } else {
         res.render('index', {
@@ -450,7 +451,7 @@ const loadWishlist = async (req, res) => {
       if (userData.is_verified === 1) {
         const completeUser = await userData.populate('wishlist.item.productId')
         console.log(completeUser)
-        res.render('shop-cart', { isLoggedIn: true, id: userSession.userId, wishlistProducts: completeUser.wishlist })
+        res.render('shop-cart', { isLoggedIn: true, id: userSession.userId, wishlistProducts: completeUser.wishlist, userData })
       } else {
         res.render('shop-cart', { isLoggedIn: false, id: userSession.userId })
       }
@@ -543,9 +544,9 @@ const loadCheckout = async (req, res) => {
         const nocoupon = userSession.nocoupon
         if (userSession.couponTotal === 0) {
           userSession.couponTotal = userData.cart.totalPrice
-          res.render('checkout', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, nocoupon, couponTotal: userSession.couponTotal, offerName: userSession.offer, coupon })
+          res.render('checkout', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, nocoupon, couponTotal: userSession.couponTotal, offerName: userSession.offer, coupon, userData })
         } else {
-          res.render('checkout', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, nocoupon, couponTotal: userSession.couponTotal, offerName: userSession.offer, coupon })
+          res.render('checkout', { isLoggedIn: true, id: userSession.userId, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, nocoupon, couponTotal: userSession.couponTotal, offerName: userSession.offer, coupon, userData })
         }
       } else {
         res.render('checkout', { isLoggedIn: false, id: userSession.userId, nocoupon: false, userAddress: null, addSelect: null, couponTotal: null, offerName: false, coupon: false })
@@ -606,19 +607,18 @@ const storeOrder = async (req, res) => {
             }
           } productDetails[i].save()
         }
-        console.log('Hello!!!')
         console.log(req.body.payment)
-        console.log('!!!!!!!!!!!!!!!!!!!!!')
         if (req.body.payment === 'Cash-on-Delivery') {
           console.log('Hello!!')
           res.redirect('/orderSuccess')
         } else if (req.body.payment === 'RazorPay') {
           res.render('razorpay', {
-            isLoggedIn,
+            isLoggedIn: true,
             userId: userSession.userId,
             total: completeUser.cart.totalPrice,
             count: userData.cart.totalQty,
-            wcount: userData.wishlist.totalQty
+            wcount: userData.wishlist.totalQty,
+            userData
           })
         } else {
           res.redirect('/checkout')
@@ -645,7 +645,7 @@ const viewOrder = async (req, res) => {
       await orderData.populate('products.item.productId')
       console.log(orderData)
       if (orderData) {
-        res.render('orderdetails', { order: orderData, user: userData })
+        res.render('orderdetails', { order: orderData, user: userData, userData })
       }
     } else {
       res.redirect('/login')
@@ -659,12 +659,13 @@ const singleProduct = async (req, res) => {
   try {
     userSession = req.session
     if (userSession.userId) {
+      const userData = await User.findById({ _id: userSession.userId })
       const id = req.query.id
       const product = await Product.findById({ _id: id })
       const categoryId = product.category
       const categoryData = await Category.findById({ _id: categoryId })
       console.log(categoryId)
-      res.render('product-details', { isLoggedIn: true, id: userSession.userId, product, category: categoryData })
+      res.render('product-details', { isLoggedIn: true, id: userSession.userId, product, category: categoryData, userData })
     } else {
       const id = req.query.id
       const product = await Product.findById({ _id: id })
@@ -686,7 +687,7 @@ const loadProfile = async (req, res) => {
       const addressData = await Address.find({ userId: userSession.userId })
       const orderData = await Order.find({ userId: userSession.userId }).sort({ createdAt: -1 })
       console.log(orderData)
-      res.render('userprofile', { isLoggedIn: true, id: userSession.userId, user: userData, userAddress: addressData, userOrders: orderData })
+      res.render('userprofile', { isLoggedIn: true, id: userSession.userId, user: userData, userAddress: addressData, userOrders: orderData, userData })
     } else {
       res.redirect('/login')
     }
@@ -789,7 +790,7 @@ const loadSuccess = async (req, res) => {
           'cart.totalQty': 0
         }
       }, { multi: true })
-      res.render('ordersuccess')
+      res.render('ordersuccess', { isLoggedIn: true, userData })
     } else {
       res.redirect('/login')
     }
@@ -805,8 +806,15 @@ const cancelOrder = async (req, res) => {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
         const id = req.query.id
+        const orderData = await Order.findById({ _id: id })
+        console.log(orderData)
+        const totalPrice = orderData.products.totalPrice
         await Order.findByIdAndUpdate({ _id: id }, { $set: { status: 'Canceled' } })
-        res.redirect('/userprofile')
+        if (orderData.payment === 'RazorPay') {
+          res.render('wallet', { totalPrice, userData })
+        } else {
+          res.redirect('/userprofile')
+        }
       } else {
         res.redirect('/login')
       }
@@ -870,7 +878,7 @@ const loadFilterProduct = async (req, res) => {
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
-        res.render('filterproduct', { isLoggedIn: true, id: userSession.userId, category: categoryData, products })
+        res.render('filterproduct', { isLoggedIn: true, id: userSession.userId, category: categoryData, products, userData })
       } else {
         res.render('filterproduct', { isLoggedIn: false, id: userSession.userId, category: categoryData, products })
       }
@@ -898,7 +906,7 @@ const addCoupon = async (req, res) => {
         if (offerData.isAvailable === 1) {
           if (offerData.usedBy.includes(userSession.userId)) {
             nocoupon = true
-            res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: true, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: userSession.offer, couponTotal: userSession.couponTotal, message: 'Coupon already used' })
+            res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: true, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: userSession.offer, couponTotal: userSession.couponTotal, userData, message: 'Coupon already used' })
           } else {
             userSession.offer.name = offerData.name
             userSession.offer.type = offerData.type

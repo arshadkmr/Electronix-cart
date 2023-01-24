@@ -314,10 +314,12 @@ const updateProduct = async (req, res) => {
     const productId = req.params.id
     if (adminSession.adminId) {
       const files = req.files
+      const categoryName = req.body.category
+      const categoryId = await Category.findOne({ names: categoryName })
       const productData = await Product.findByIdAndUpdate({ _id: productId },
         {
           name: req.body.name,
-          category: req.body.category,
+          category: categoryId._id,
           price: req.body.price,
           description: req.body.description,
           stock: req.body.stock,

@@ -111,16 +111,6 @@
                                     <li><a href="/checkout">Checkout</a></li>
                                 </ul>
                             </li>
-                            <!-- <li>Category
-                                <ul class="dropdown">
-                                    <li><a href=""></a></li>
-                                    <li><a href="">Shop Cart</a></li>
-                                    <li><a href="">Shop Cart</a></li>
-                                    <li><a href="">Shop Cart</a></li>
-                                    <li><a href="">Checkout</a></li>
-                                </ul>
-                            </li> -->
-
                         </ul>
                     </nav>
                 </div>
@@ -132,10 +122,10 @@
                         <ul class="header__right__widget">
                             <li><span class="icon_search search-switch" style="color: red;"></span></li>
                             <li><a href="/wishlist"><span class="icon_heart_alt" style="color: red;"></span>
-                                    <!-- <div class="tip"></div> -->
+                                    <div class="tip"><%=userData.wishlist.item.length%></div>
                                 </a></li>
                             <li><a href="/cart"><span class="icon_bag_alt" style="color: red;"></span>
-                                    <!-- <div class="tip"></div> -->
+                                    <div class="tip"><%=userData.cart.item.length%></div>
                                 </a></li>
                         </ul>
                     </div>

@@ -27,16 +27,13 @@ userRoute.get('/single-product', userController.singleProduct)
 userRoute.get('/userprofile', userController.loadProfile)
 userRoute.post('/address', userController.addAddress)
 userRoute.post('/razorpay', userController.razorpayCheckout)
-
 userRoute.get('/orderSuccess', userController.loadSuccess)
 userRoute.get('/viewOrder', userController.viewOrder)
 userRoute.get('/cancelOrder', userController.cancelOrder)
 userRoute.get('/returnProduct', userController.returnOrder)
 userRoute.post('/addcoupon', userController.addCoupon)
-
 userRoute.get('/category-products', userController.loadFilterProduct)
 userRoute.post('/changeProductQty', userController.changeProductQty)
-
 userRoute.post('/login', userController.verifyLogin)
 userRoute.post('/register', userController.insertUser)
 userRoute.get('/logout', userController.userLogout)
@@ -44,13 +41,7 @@ userRoute.get('/forgotpassword', userController.userForgotPassword)
 userRoute.post('/forgotpassword', userController.checkUser)
 userRoute.post('/forgotpasswordotp', userController.sentOtp)
 userRoute.post('/forgotpasswordchange', userController.changepassword)
-
 userRoute.get('/verifyOtp', userController.loadOtp)
 userRoute.post('/verifyOtp', userController.verifyOtp)
-
-// userRoute.get('/', userController.notFound)
-// userRoute.get('*',function(req,res){
-//     res.render('/404')
-// })
 
 module.exports = userRoute

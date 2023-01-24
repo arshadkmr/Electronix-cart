@@ -6,31 +6,27 @@
                     <div class="card-body p-md-5">
                         <div class="row justify-content-center">
                             <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-                                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4"><span
-                                        class="text-main-1">Razorpay Process</span> To Payment</p>
+                                <p class="text-center h3 mb-5 mx-1 mx-md-4 mt-4"><span
+                                        class="h1 fw-bold" style="color: #5d5dff;">Razorpay <br></span> Payment</p>
+                                        <hr>
 
                                 <div class="d-flex flex-row align-items-center mb-4">
-                                    <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                                    <div class="form-outline flex-fill mb-0">
+                                    
+                                    <div class="form-outline flex-fill mb-0 text-center">
                                         <label class="text-center form-label" for="form3Example3c">Click Below to
-                                            Pay <br>Total:<%= total %></label>
+                                            Pay <br><b> Total :₹ <%= total %>/</b></label>
                                     </div>
                                 </div>
 
                                 <div class="row vertical-gap">
-                                    <div class="col-md-6">
-                                        <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-
-
-                                            <button class="btn btn-outline-success ml-2 btn-lg mx-3" 
+                                    <div class="col-md-12">
+                                        <div class="d-flex justify-content-center mb-3 mb-lg-4">
+                                            <button class="btn btn-success mr-4" style="width: 7vw;" 
                                                 id="rzp-button1">Pay</button>
                                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                                             <script>
-
-
                                                 document.getElementById('rzp-button1').onclick = async function (e) {
                                                     e.preventDefault();
-
                                                     let response = await fetch("https://electronix.website/razorpay", {
                                                         method: "POST",
                                                         headers: {
@@ -70,7 +66,7 @@
                                                 }
 
                                             </script>
-                                            <a href="/checkout" class="btn btn-outline-danger ml-2 btn-lg">Go Back</a>
+                                            <a href="/checkout" class="btn btn-danger ml-4" style="width: 7vw;">Go Back</a>
                                         </div>
                                     </div>
                                 </div>
