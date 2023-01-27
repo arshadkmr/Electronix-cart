@@ -94,7 +94,7 @@ const loadLogin = async (req, res) => {
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
-        const productData = await Product.find({ isAvailable: 1 })
+        const productData = await Product.find({ isAvailable: 1 }).sort({ name: 1 })
         const categoryData = await Category.find({ isAvailable: 1 })
         res.render('home', { isLoggedIn: true, products: productData, category: categoryData, userData })
       } else {
@@ -255,7 +255,7 @@ const verifyLogin = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
     const userData = await User.findOne({ email })
-    const products = await Product.find({ isAvailable: 1 })
+    const products = await Product.find({ isAvailable: 1 }).sort({ name: 1 })
     const categoryData = await Category.find({ isAvailable: 1 })
     if (userData) {
       const passwordMatch = await bcrypt.compare(password, userData.password)
@@ -559,13 +559,65 @@ const loadCheckout = async (req, res) => {
   }
 }
 
+const addCoupon = async (req, res) => {
+  try {
+    console.log('adding coupon')
+    userSession = req.session
+    if (userSession.userId) {
+      console.log('userData')
+      const userData = await User.findById({ _id: userSession.userId })
+      const completeUser = await userData.populate('cart.item.productId')
+      if (userData.is_verified === 1) {
+        userSession.offer = offer
+        const offerData = await Offer.findOne({ name: req.body.offer })
+        const addressData = await Address.find({ userId: userSession.userId })
+        const selectAddress = await Address.findOne({ userId: userData._id })
+        const coupon = await Offer.find()
+        console.log(offerData.minimumBill)
+        console.log(userData.cart.totalPrice)
+        if (offerData.isAvailable === 1) {
+          if (offerData.usedBy.includes(userSession.userId)) {
+            nocoupon = true
+            userSession.couponTotal = 0
+            res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: true, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: false, couponTotal: userSession.couponTotal, coupon, userData, message: 'Coupon already used' })
+          } else {
+            userSession.offer.name = offerData.name
+            userSession.offer.type = offerData.type
+            userSession.offer.discount = offerData.discount
+            if (userData.cart.totalPrice > offerData.minimumBill) {
+              let updatedTotal =
+                userData.cart.totalPrice -
+                (userData.cart.totalPrice * userSession.offer.discount) / 100
+              userSession.couponTotal = updatedTotal
+              couponTotal = updatedTotal
+              nocoupon = false
+              res.redirect('/checkout')
+            } else {
+              res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: false, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: userSession.offer, couponTotal: userSession.couponTotal, coupon, userData, message: 'Minimum amount required' })
+            }
+          }
+        } else {
+          res.redirect('/checkout')
+        }
+      } else {
+        res.redirect('/login')
+      }
+    } else {
+      res.redirect('/login')
+    }
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
 const storeOrder = async (req, res) => {
   try {
     userSession = req.session
     if (userSession.userId) {
       const userData = await User.findById({ _id: userSession.userId })
       const completeUser = await userData.populate('cart.item.productId')
-
+      console.log(completeUser.cart.totalPrice)
+      console.log(couponTotal)
       if (completeUser.cart.totalPrice > 0) {
         const order = Order({
           userId: userSession.userId,
@@ -578,7 +630,8 @@ const storeOrder = async (req, res) => {
           state: req.body.state,
           zip: req.body.zip,
           phone: req.body.phone,
-          products: completeUser.cart
+          products: completeUser.cart,
+          discount: 0
         })
         const orderProductStatus = []
         // eslint-disable-next-line no-unused-vars
@@ -586,18 +639,17 @@ const storeOrder = async (req, res) => {
           orderProductStatus.push(0)
         }
         order.productReturned = orderProductStatus
-
         const orderData = await order.save()
         userSession.currentOrder = orderData._id
-        currentOrder = orderData.key_id
-
+        currentOrder = orderData._id
+        console.log(userSession.currentOrder)
+        console.log(currentOrder)
         if (userSession.offer) {
           await Offer.updateOne(
             { name: userSession.offer.name },
             { $push: { usedBy: userSession.userId } }
           )
         }
-
         const ordern = await Order.findById({ _id: userSession.currentOrder })
         const productDetails = await Product.find({ is_available: 1 })
         for (let i = 0; i < productDetails.length; i++) {
@@ -646,6 +698,8 @@ const viewOrder = async (req, res) => {
       console.log(orderData)
       if (orderData) {
         res.render('orderdetails', { order: orderData, user: userData, userData })
+      } else {
+        res.redirect('*')
       }
     } else {
       res.redirect('/login')
@@ -664,7 +718,6 @@ const singleProduct = async (req, res) => {
       const product = await Product.findById({ _id: id })
       const categoryId = product.category
       const categoryData = await Category.findById({ _id: categoryId })
-      console.log(categoryId)
       res.render('product-details', { isLoggedIn: true, id: userSession.userId, product, category: categoryData, userData })
     } else {
       const id = req.query.id
@@ -778,11 +831,19 @@ const loadSuccess = async (req, res) => {
       await Order.find({
         userId: userSession.userId
       })
-      await Order.updateOne({
-        userId: userSession.userId, _id: userSession.currentOrder
-      }, {
-        $set: { status: 'Ordered' }
-      })
+      if (couponTotal > 0) {
+        await Order.updateOne({
+          userId: userSession.userId, _id: userSession.currentOrder
+        }, {
+          $set: { status: 'Ordered', discount: userData.cart.totalPrice - couponTotal }
+        })
+      } else {
+        await Order.updateOne({
+          userId: userSession.userId, _id: userSession.currentOrder
+        }, {
+          $set: { status: 'Ordered' }
+        })
+      }
       await User.updateOne({ _id: userSession.userId }, {
         $set: {
           'cart.item': [],
@@ -808,10 +869,9 @@ const cancelOrder = async (req, res) => {
         const id = req.query.id
         const orderData = await Order.findById({ _id: id })
         console.log(orderData)
-        const totalPrice = orderData.products.totalPrice
         await Order.findByIdAndUpdate({ _id: id }, { $set: { status: 'Canceled' } })
         if (orderData.payment === 'RazorPay') {
-          res.render('wallet', { totalPrice, userData })
+          res.render('wallet', { totalPrice: orderData.discount, userData, couponTotal: userSession.couponTotal })
         } else {
           res.redirect('/userprofile')
         }
@@ -833,9 +893,10 @@ const returnOrder = async (req, res) => {
       const userData = await User.findById({ _id: userSession.userId })
       if (userData.is_verified === 1) {
         const id = req.query.id
-        console.log()
+        console.log(id)
+        console.log(userSession.currentOrder)
         console.log(currentOrder)
-        const productOrderData = await Order.findById({ _id: currentOrder })
+        const productOrderData = await Order.findById({ _id: userSession.currentOrder })
         const productData = await Product.findById({ _id: id })
         if (productOrderData) {
           console.log('Product  order data : ' + productOrderData)
@@ -884,49 +945,6 @@ const loadFilterProduct = async (req, res) => {
       }
     } else {
       res.render('filterproduct', { isLoggedIn: false, id: userSession.userId, category: categoryData, products })
-    }
-  } catch (error) {
-    console.log(error.message)
-  }
-}
-
-const addCoupon = async (req, res) => {
-  try {
-    console.log('adding coupon')
-    userSession = req.session
-    if (userSession.userId) {
-      console.log('userData')
-      const userData = await User.findById({ _id: userSession.userId })
-      const completeUser = await userData.populate('cart.item.productId')
-      if (userData.is_verified === 1) {
-        userSession.offer = offer
-        const offerData = await Offer.findOne({ name: req.body.offer })
-        const addressData = await Address.find({ userId: userSession.userId })
-        const selectAddress = await Address.findOne({ userId: userData._id })
-        const coupon = await Offer.find()
-        if (offerData.isAvailable === 1) {
-          if (offerData.usedBy.includes(userSession.userId)) {
-            nocoupon = true
-            res.render('checkout', { isLoggedIn: true, id: userSession.userId, nocoupon: true, cartProducts: completeUser.cart, userAddress: addressData, addSelect: selectAddress, offerName: userSession.offer, couponTotal: userSession.couponTotal, coupon, userData, message: 'Coupon already used' })
-          } else {
-            userSession.offer.name = offerData.name
-            userSession.offer.type = offerData.type
-            userSession.offer.discount = offerData.discount
-            let updatedTotal =
-              userData.cart.totalPrice -
-              (userData.cart.totalPrice * userSession.offer.discount) / 100
-            userSession.couponTotal = updatedTotal
-            nocoupon = false
-            res.redirect('/checkout')
-          }
-        } else {
-          res.redirect('/checkout')
-        }
-      } else {
-        res.redirect('/login')
-      }
-    } else {
-      res.redirect('/login')
     }
   } catch (error) {
     console.log(error.message)

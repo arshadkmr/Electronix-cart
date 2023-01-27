@@ -11,7 +11,14 @@
                                         <hr>
                                 <div class="d-flex flex-row align-items-center mt-4 mb-4">
                                     <div class="form-outline flex-fill mt-4 mb-0 text-center">
-                                        <label class="text-center form-label" for="form3Example3c">Your amount <b> ₹ <%= totalPrice %>/</b> has been
+                                        <label class="text-center form-label" for="form3Example3c">Your amount 
+                                            <b>
+                                                <%if(couponTotal){%>
+                                                    ₹ <%= couponTotal %>/
+                                                    <% }else{ %> 
+                                            ₹ <%= totalPrice %>/
+                                            <% } %> 
+                                        </b> has been
                                             credited back to your account
                                             <br></label>
                                     </div>

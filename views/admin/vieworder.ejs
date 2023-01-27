@@ -1,0 +1,56 @@
+<%-include('../layouts/adminHeader.ejs') %>
+    <div class="content-wrapper">
+        <section class="container">
+            <div class="container-fluid">
+                <div class="pt-5 mt-3 pb-2">
+                    <div class="table-responsive">
+                        <h2 class="mb-5" style="text-align: center; color: white;">View Details</h2>
+                        
+                        <table class="table mt-3" style=" text-align: center; color: white;">
+                            <tr>
+                                <th class="border-top-0">Image</th>
+                                <th class="border-top-0">Product</th>
+                                <th class="border-top-0">Price</th>
+                                <th class="border-top-0">Quantity</th>
+                                <th class="border-top-0">Total Price</th>
+                            </tr>
+                            <tr>
+                                <% if(orderData.products.item){%>
+                                    <% for(let key of products.item){ %> 
+                                    
+                            <tr>
+                                <td>
+                                    <img src="/banners/<%= key.productId.image[0] %>" width="75vw" height="75vh"
+                                    class="img-fluid" alt="lol">
+                            </td>
+                                <td>
+                                    <%=key.productId.name%>
+                                    </td>
+                                <td>
+                                    ₹<%=key.price%>/
+                                </td>
+                                <td>
+                                    <%=key.qty%>
+                            </td>
+                                <td>
+                                    ₹<%=key.qty*key.price%>/
+                                </td>
+                                
+                            </tr>
+                            <% }} else{ %>
+                                <tr>
+                                    <td colspan="5">Orders not found</td>
+                                </tr>
+                                <% } %>
+                                    </tr>
+                        </table>
+                        <hr>
+                        <div>
+                            <h3 class="text-center">Cart Total : ₹<%=products.totalPrice%>/</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <%- include('../layouts/adminFooter.ejs') %>

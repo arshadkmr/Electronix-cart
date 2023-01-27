@@ -95,7 +95,7 @@ const loadDashboard = async (req, res) => {
         for (let j = 0; j < completeOrder[i].products.item.length; j++) {
           const categoryData = completeOrder[i].products.item[j].productId.category
           const isExisting = categoryArray.findIndex((category) => {
-            return category === categoryData
+            return category === categoryData._id
           })
           console.log('isExisting' + isExisting)
           orderCount[isExisting]++
@@ -103,14 +103,15 @@ const loadDashboard = async (req, res) => {
           console.log('order' + orderCount)
         }
       }
+      console.log(categoryArray)
       if (productName && salesCount) {
         res.render('home', {
           products: productData,
           users: userData,
           category: categoryArray,
           count: orderCount,
-          pname: productName,
-          pcount: salesCount
+          pName: productName,
+          pCount: salesCount
         })
       }
     } else {
@@ -197,7 +198,6 @@ const addProduct = async (req, res) => {
     adminSession = req.session
     if (adminSession.adminId) {
       const categoryData = await Category.find()
-      console.log(categoryData)
       res.render('addproduct', { category: categoryData })
     } else {
       res.redirect('/admin/login')
@@ -213,7 +213,7 @@ const insertProduct = async (req, res) => {
     if (adminSession.adminId) {
       const files = req.files
       const ID = req.body.category
-      console.log(ID)
+      console.log('category Id : ' + ID)
       const categoryName = await Category.findById({ _id: ID })
       console.log(categoryName.names)
 
@@ -260,8 +260,6 @@ const showProduct = async (req, res) => {
     if (adminSession.adminId) {
       const productData = await Product.findOneAndUpdate({ _id: req.query.id }, { $set: { isAvailable: 1 } })
       if (productData) {
-        console.log('block working')
-        console.log(productData)
         res.redirect('/admin/productlist')
       }
     } else {
@@ -278,8 +276,6 @@ const blockProduct = async (req, res) => {
     if (adminSession.adminId) {
       const productData = await Product.findOneAndUpdate({ _id: req.query.id }, { $set: { isAvailable: 0 } })
       if (productData) {
-        console.log('show working')
-        console.log(productData)
         res.redirect('/admin/productlist')
       }
     } else {
@@ -296,9 +292,11 @@ const editProduct = async (req, res) => {
     if (adminSession.adminId) {
       const productId = req.query.id
       const productData = await Product.findById(productId)
+      const categoryId = productData.category
       const categoryData = await Category.find()
+      const productCategory = await Category.findById({ _id: categoryId })
       if (productData) {
-        res.render('editproduct', { product: productData, category: categoryData })
+        res.render('editproduct', { product: productData, category: categoryData, categoryName: productCategory })
       }
     } else {
       res.redirect('/admin/login')
@@ -353,15 +351,16 @@ const addCategory = async (req, res) => {
 
 const insertCategory = async (req, res) => {
   const category = req.body.category
-  const categoryData = await Category.findOne({ names: category })
+  const categoryData = await Category.findOne({ names: { $regex: new RegExp("^" + category.toUpperCase(), "i") } })
   if (categoryData) {
     res.render('addcategory', { message: 'Category already exists' })
   } else {
     try {
       adminSession = req.session
       if (adminSession.adminId) {
+        const categoryName = req.body.category.toUpperCase()
         const category = Category({
-          names: req.body.category
+          names: categoryName
         })
         const categoryData = await category.save()
         if (categoryData) {
@@ -454,7 +453,8 @@ const updateCategory = async (req, res) => {
     if (adminSession.adminId) {
       const id = req.params.id
       console.log(id)
-      const categoryData = await Category.findByIdAndUpdate({ _id: id }, { names: req.body.category })
+      const categoryName = req.body.category.toUpperCase()
+      const categoryData = await Category.findByIdAndUpdate({ _id: id }, { names: categoryName })
       if (categoryData) {
         res.redirect('/admin/categorylist')
       }
@@ -501,7 +501,8 @@ const insertCoupon = async (req, res) => {
       const offer = Offer({
         name: req.body.name,
         type: req.body.type,
-        discount: req.body.discount
+        discount: req.body.discount,
+        minimumBill: req.body.minBill
       })
       const offerData = await offer.save()
       if (offerData) {
@@ -611,7 +612,7 @@ const orderDownload = async function (req, res) {
         { header: 'Status', key: 'status' }
       ]
       let counter = 1
-      const orderData = await Order.find({})
+      const orderData = await Order.find({ status: 'Delivered' })
       orderData.forEach(function (orders) {
         orders.s_no = counter
         workSheet.addRow(orders)
@@ -630,6 +631,28 @@ const orderDownload = async function (req, res) {
       return workBook.xlsx.write(res).then(function () {
         res.status(200)
       })
+    } else {
+      res.redirect('/admin/login')
+    }
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+const viewOrder = async (req, res) => {
+  try {
+    adminSession = req.session
+    if (adminSession.adminId) {
+      const id = req.query.id
+      console.log('ID : ' + id)
+      const orderData = await Order.findById({ _id: id })
+      const completeProduct = await orderData.populate('products.item.productId')
+      console.log(orderData)
+      if (orderData) {
+        res.render('vieworder', { orderData, products: completeProduct.products })
+      } else {
+        res.redirect('/admin/orderdetails')
+      }
     } else {
       res.redirect('/admin/login')
     }
@@ -680,5 +703,6 @@ module.exports = {
   showCoupon,
   loadOrder,
   updateOrderStatus,
-  orderDownload
+  orderDownload,
+  viewOrder
 }

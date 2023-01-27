@@ -5,8 +5,10 @@
                 <div class="pt-5 mt-3 pb-2">
                     <div class="table-responsive">
                         <h2 class="mb-3" style="text-align: center; color: white;">Order Details</h2>
+                        <% if(orderData.length> 0){%>
                         <a href="/admin/orderDownload"><button type="button" class="btn btn-warning btn-lg">Export
                                 orders</button></a>
+                                <% } %> 
                         <table class="table" style=" text-align: center; color: white;">
                             <tr>
                                 <th class="border-top-0">SI No</th>
@@ -27,7 +29,7 @@
                                     <%=orderData[i]._id%>
                                 </td>
                                 <td>
-                                    <%=orderData[i].createdAt%>
+                                    <%=orderData[i].createdAt.toDateString()%>
                                 </td>
                                 <td>
                                     <%=orderData[i].payment%>
@@ -49,6 +51,7 @@
                                         </select>
                                         <input type="hidden" name="orderid" value="<%= orderData[i]._id %>">
                                         <button type="submit" class="btn btn-success">Update</button>
+                                        <a href="/admin/vieworder?id=<%=orderData[i]._id%> " class="btn btn-warning">View Details</a>
                                     </form>
                                 </td>
                             </tr>

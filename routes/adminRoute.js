@@ -39,6 +39,7 @@ adminRoute.post('/edit-category/:id', adminController.updateCategory)
 adminRoute.get('/orderdetails', adminController.loadOrder)
 adminRoute.post('/orderdetails', adminController.updateOrderStatus)
 adminRoute.get('/orderDownload', adminController.orderDownload)
+adminRoute.get('/vieworder', adminController.viewOrder)
 adminRoute.get('/logout', adminController.adminLogout)
 
 module.exports = adminRoute
